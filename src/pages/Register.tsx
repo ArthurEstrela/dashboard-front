@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { authService } from "../services/authService"; // Importe direto o serviço aqui
+import { authService } from "../services/authService";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "../components/ui/card";
-import { Typography } from "../components/ui/typography";
-import { Sparkles, ArrowRight, Lock, Mail, User as UserIcon } from "lucide-react";
+import { Sparkles, ArrowRight, Lock, Mail, User } from "lucide-react";
 
 export function Register() {
   const navigate = useNavigate();
-  const { signIn } = useAuth(); // Usaremos o signIn para logar automático após cadastrar
+  const { signIn } = useAuth();
   
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,17 +23,16 @@ export function Register() {
     setError("");
 
     try {
-      // 1. Cria a conta na API
+      // 1. Cria a conta
       await authService.register({ name, email, pass: password });
       
-      // 2. Já faz o login automático para o usuário não precisar digitar de novo
+      // 2. Login automático
       await signIn({ email, pass: password });
       
-      // 3. Redireciona para o Dashboard
+      // 3. Redireciona
       navigate("/dashboard");
       
     } catch (err: any) {
-      // Se a API retornar erro (ex: Email já existe), mostramos aqui
       const msg = err.response?.data || "Erro ao criar conta. Tente novamente.";
       setError(msg);
     } finally {
@@ -43,22 +41,22 @@ export function Register() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 p-4">
-      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 transition-colors duration-300">
+      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
         
         {/* Branding */}
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg">
-                <Sparkles size={20} />
+        <div className="flex justify-center">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+              <Sparkles size={24} />
             </div>
-            <Typography variant="h2" className="border-none text-3xl">NEXO</Typography>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">NEXO</h2>
           </div>
         </div>
 
-        <Card className="shadow-xl border-slate-200 dark:border-slate-800">
+        <Card className="border-border shadow-xl">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl">Crie sua conta</CardTitle>
+            <CardTitle className="text-2xl font-bold">Crie sua conta</CardTitle>
             <CardDescription>
               Comece a gerenciar suas avaliações com inteligência.
             </CardDescription>
@@ -67,61 +65,52 @@ export function Register() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               
-              {/* Campo Nome */}
-              <div className="space-y-2">
-                <Input 
-                  label="Nome Completo" 
-                  type="text" 
-                  placeholder="Seu nome" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  icon={<UserIcon size={16} />}
-                  required
-                />
-              </div>
+              <Input 
+                label="Nome Completo" 
+                type="text" 
+                placeholder="Seu nome" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                icon={<User size={18} />}
+                required
+              />
 
-              {/* Campo Email */}
-              <div className="space-y-2">
-                <Input 
-                  label="Email Corporativo" 
-                  type="email" 
-                  placeholder="voce@empresa.com" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  icon={<Mail size={16} />}
-                  required
-                />
-              </div>
+              <Input 
+                label="Email Corporativo" 
+                type="email" 
+                placeholder="voce@empresa.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                icon={<Mail size={18} />}
+                required
+              />
 
-              {/* Campo Senha */}
-              <div className="space-y-2">
-                <Input 
-                  label="Senha" 
-                  type="password" 
-                  placeholder="No mínimo 6 caracteres" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  icon={<Lock size={16} />}
-                  required
-                  minLength={6}
-                />
-              </div>
+              <Input 
+                label="Senha" 
+                type="password" 
+                placeholder="Mínimo 6 caracteres" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                icon={<Lock size={18} />}
+                required
+                minLength={6}
+              />
 
               {error && (
-                <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm border border-red-200 dark:bg-red-900/20 dark:border-red-900 dark:text-red-400">
+                <div className="flex items-center p-3 rounded-md bg-destructive/15 border border-destructive/20 text-destructive text-sm font-medium animate-in slide-in-from-top-1">
                   {error}
                 </div>
               )}
 
-              <Button className="w-full" size="lg" isLoading={isLoading}>
+              <Button className="w-full font-bold" size="lg" isLoading={isLoading}>
                 Criar Conta Grátis <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </form>
           </CardContent>
           <CardFooter className="justify-center">
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Já tem uma conta?{" "}
-              <Link to="/login" className="font-semibold text-slate-900 hover:underline dark:text-slate-100">
+              <Link to="/login" className="font-semibold text-primary hover:underline underline-offset-4 transition-all">
                 Fazer login
               </Link>
             </p>

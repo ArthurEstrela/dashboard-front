@@ -1,4 +1,3 @@
-// src/components/ui/textarea.tsx
 import * as React from "react"
 import { cn } from "../../lib/utils"
 
@@ -13,27 +12,24 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="w-full space-y-2">
         {label && (
-          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
             {label}
           </label>
         )}
         <textarea
           className={cn(
-            // Estilos Base (Cores, Bordas, Focus)
-            "flex min-h-[80px] w-full rounded-md border border-slate-200 bg-white px-3 py-2 ring-offset-white placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300",
-            
-            // Mobile Optimization (Previne zoom no iOS)
-            "text-base md:text-sm", 
-            
-            // Tratamento de Erro
-            error && "border-red-500 focus-visible:ring-red-500",
-            
+            "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2",
+            "text-base md:text-sm text-foreground ring-offset-background",
+            "placeholder:text-muted-foreground",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-all duration-200",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            error && "border-destructive focus-visible:ring-destructive",
             className
           )}
           ref={ref}
           {...props}
         />
-        {error && <p className="text-xs text-red-500">{error}</p>}
+        {error && <p className="text-xs text-destructive font-medium animate-in slide-in-from-top-1">{error}</p>}
       </div>
     )
   }
