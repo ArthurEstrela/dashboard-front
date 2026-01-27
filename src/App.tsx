@@ -1,32 +1,52 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
+import { PrivateRoute } from "./routes/PrivateRoute";
 import { AppLayout } from "./components/layout/AppLayout";
-import { Login } from "./pages/Login"; // Sua página de login
-import { Dashboard } from "./pages/Dashboard"; // Sua dashboard
 
-// Componente para proteger rotas
-function PrivateRoute({ children }: { children: JSX.Element }) {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  if (isLoading) return <div className="h-screen flex items-center justify-center">Carregando...</div>;
-  
-  return isAuthenticated ? children : <Navigate to="/login" />;
-}
+// Páginas
+import { Login } from "./pages/Login";
+import { Register } from "./pages/Register";
+import { Dashboard } from "./pages/Dashboard";
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Rota Pública */}
+          {/* ==================================================== */}
+          {/* 1. ROTAS PÚBLICAS (Acesso Livre)                     */}
+          {/* ==================================================== */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-          {/* Rotas Privadas (Dentro do Layout NEXO) */}
-          <Route element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-             <Route path="/dashboard" element={<Dashboard />} />
-             <Route path="/" element={<Navigate to="/dashboard" />} />
-             {/* Adicione mais rotas aqui: /reviews, /settings */}
+          {/* ==================================================== */}
+          {/* 2. ROTAS PROTEGIDAS (Requer Login + Layout Padrão)   */}
+          {/* ==================================================== */}
+          
+          {/* O PrivateRoute protege tudo que está dentro dele */}
+          <Route element={<PrivateRoute />}>
+            
+            {/* O AppLayout adiciona Sidebar e Header em tudo que está dentro dele */}
+            <Route element={<AppLayout />}>
+              
+              <Route path="/dashboard" element={<Dashboard />} />
+              
+              {/* Futuras rotas entram aqui: */}
+              {/* <Route path="/minhas-lojas" element={<Stores />} /> */}
+              {/* <Route path="/configuracoes" element={<Settings />} /> */}
+
+              {/* Rota padrão: Se acessar a raiz "/", manda pro Dashboard */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              
+            </Route>
+            
           </Route>
+
+          {/* ==================================================== */}
+          {/* 3. ROTA 404 (Catch-All)                              */}
+          {/* ==================================================== */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+          
         </Routes>
       </BrowserRouter>
     </AuthProvider>
