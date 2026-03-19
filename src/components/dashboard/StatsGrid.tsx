@@ -1,67 +1,97 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Activity, ArrowUpRight, TrendingUp, Star, Users } from "lucide-react";
+import { Activity, TrendingUp, Star, Store, TrendingDown } from "lucide-react";
+import { type Review, type EstablishmentSummary } from "../../types";
+import { useMemo } from "react";
 
 interface StatsGridProps {
-  total: number;
-  score: number;
-  avgRating: string;
+  reviews: Review[];
+  establishments: EstablishmentSummary[];
 }
 
-export function StatsGrid({ total, score, avgRating }: StatsGridProps) {
+function StatCard({
+  title,
+  value,
+  sub,
+  icon,
+  accentColor,
+}: {
+  title: string;
+  value: string | number;
+  sub: React.ReactNode;
+  icon: React.ReactNode;
+  accentColor: string;
+}) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {/* Card 1: Total */}
-      <Card className="shadow-sm hover:shadow-md transition-all duration-300 border-l-4 border-l-primary bg-card/50 backdrop-blur">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Total de Reviews</CardTitle>
-          <Activity size={18} className="text-primary" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold tracking-tight">{total}</div>
-          <p className="text-xs text-muted-foreground mt-1 flex items-center">
-            <span className="text-green-500 font-medium flex items-center mr-1">
-              <ArrowUpRight size={12} className="mr-1"/> +12%
-            </span> 
-            esse mês
-          </p>
-        </CardContent>
-      </Card>
+    <div className={`relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow`}>
+      <div className={`absolute top-0 left-0 h-full w-1 ${accentColor}`} />
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-500">{title}</p>
+          <p className="mt-1.5 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
+          <div className="mt-1.5 text-xs text-slate-500">{sub}</div>
+        </div>
+        <div className={`rounded-lg p-2.5 bg-slate-50`}>{icon}</div>
+      </div>
+    </div>
+  );
+}
 
-      {/* Card 2: Score IA */}
-      <Card className="shadow-sm hover:shadow-md transition-all duration-300 border-l-4 border-l-green-500 bg-card/50 backdrop-blur">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Satisfação (IA)</CardTitle>
-          <TrendingUp size={18} className="text-green-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold tracking-tight">{score}%</div>
-          <p className="text-xs text-muted-foreground mt-1">Sentimento positivo</p>
-        </CardContent>
-      </Card>
+export function StatsGrid({ reviews, establishments }: StatsGridProps) {
+  const stats = useMemo(() => {
+    const total = reviews.length;
+    const positive = reviews.filter((r) => r.overallSentiment === "Positivo").length;
+    const negative = reviews.filter((r) => r.overallSentiment === "Negativo").length;
+    const score = total > 0 ? Math.round((positive / total) * 100) : 0;
+    const avgRating =
+      total > 0 ? (reviews.reduce((acc, r) => acc + (r.rating || 0), 0) / total).toFixed(1) : "0.0";
+    return { total, positive, negative, score, avgRating };
+  }, [reviews]);
 
-      {/* Card 3: Nota Google */}
-      <Card className="shadow-sm hover:shadow-md transition-all duration-300 border-l-4 border-l-yellow-500 bg-card/50 backdrop-blur">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Nota Média</CardTitle>
-          <Star size={18} className="text-yellow-500 fill-yellow-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold tracking-tight">{avgRating}</div>
-          <p className="text-xs text-muted-foreground mt-1">Google Maps</p>
-        </CardContent>
-      </Card>
-
-      {/* Card 4: Lojas */}
-      <Card className="shadow-sm hover:shadow-md transition-all duration-300 border-l-4 border-l-blue-500 bg-card/50 backdrop-blur">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Lojas Ativas</CardTitle>
-          <Users size={18} className="text-blue-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-3xl font-bold tracking-tight">1</div>
-          <p className="text-xs text-muted-foreground mt-1">Plano Pro</p>
-        </CardContent>
-      </Card>
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatCard
+        title="Total de Avaliações"
+        value={stats.total}
+        sub={
+          stats.negative > 0 ? (
+            <span className="flex items-center gap-1 text-red-500">
+              <TrendingDown size={12} /> {stats.negative} negativas para agir
+            </span>
+          ) : (
+            "Nenhuma avaliação negativa!"
+          )
+        }
+        icon={<Activity size={20} className="text-indigo-500" />}
+        accentColor="bg-indigo-500"
+      />
+      <StatCard
+        title="Satisfação (IA)"
+        value={`${stats.score}%`}
+        sub={
+          <span className={stats.score >= 70 ? "text-green-600" : stats.score >= 50 ? "text-yellow-600" : "text-red-500"}>
+            {stats.score >= 70 ? "Excelente" : stats.score >= 50 ? "Regular" : "Precisa melhorar"} · {stats.positive} positivas
+          </span>
+        }
+        icon={<TrendingUp size={20} className="text-green-500" />}
+        accentColor="bg-green-500"
+      />
+      <StatCard
+        title="Nota Média"
+        value={stats.avgRating}
+        sub="Google Maps · escala de 1 a 5"
+        icon={<Star size={20} className="text-yellow-500 fill-yellow-500" />}
+        accentColor="bg-yellow-500"
+      />
+      <StatCard
+        title="Estabelecimentos"
+        value={establishments.length}
+        sub={
+          establishments.length === 0
+            ? "Adicione sua primeira loja"
+            : `${establishments.reduce((s, e) => s + e.reviewCount, 0)} avaliações monitoradas`
+        }
+        icon={<Store size={20} className="text-blue-500" />}
+        accentColor="bg-blue-500"
+      />
     </div>
   );
 }

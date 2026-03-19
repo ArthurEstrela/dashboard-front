@@ -1,13 +1,18 @@
 import { api } from "../lib/api";
-import { type CreateEstablishmentDTO, type Establishment } from "../types";
+import { type CreateEstablishmentDTO, type Establishment, type EstablishmentSummary } from "../types";
 
 export const establishmentService = {
-  // Cria e já minera (POST /establishments)
-  async create(data: CreateEstablishmentDTO) {
-    const response = await api.post<Establishment>("/establishments", data);
+  async create(data: CreateEstablishmentDTO): Promise<{ establishment: Establishment; jobId: string }> {
+    const response = await api.post<{ establishment: Establishment; jobId: string }>("/establishments", data);
     return response.data;
   },
 
-  // TODO: Se no futuro você criar um GET /establishments/my no Java, adicione aqui
-  // async getMyEstablishments() { ... }
+  async getAll(): Promise<EstablishmentSummary[]> {
+    const response = await api.get<EstablishmentSummary[]>("/establishments");
+    return response.data;
+  },
+
+  async delete(id: number): Promise<void> {
+    await api.delete(`/establishments/${id}`);
+  },
 };

@@ -1,64 +1,90 @@
-import { Card, CardHeader, CardContent } from "../ui/card";
-import { Avatar } from "../ui/avatar";
-import { Star } from "lucide-react";
+import { Star, MapPin } from "lucide-react";
 import { cn } from "../../lib/utils";
+import { type Review } from "../../types";
 
-// Defina a interface correta baseada no seu hook useReviews
-interface ReviewProps {
-  review: any; // Substitua 'any' pela interface Review real se tiver
+interface ReviewCardProps {
+  review: Review;
 }
 
-export function ReviewCard({ review }: ReviewProps) {
+const sentimentStyle = {
+  Positivo: "bg-green-50 text-green-700 ring-green-600/20",
+  Negativo: "bg-red-50 text-red-700 ring-red-600/20",
+  Neutro: "bg-slate-50 text-slate-600 ring-slate-500/10",
+};
+
+const aspectColor = {
+  Positivo: "text-green-600",
+  Negativo: "text-red-500",
+  Neutro: "text-slate-500",
+};
+
+export function ReviewCard({ review }: ReviewCardProps) {
+  const initials = review.author
+    ? review.author.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
+    : "?";
+
+  const sentiment = (review.overallSentiment as keyof typeof sentimentStyle) || "Neutro";
+
   return (
-    <Card className="group hover:border-primary/50 transition-colors duration-200 overflow-hidden">
-      <CardHeader className="flex flex-row items-start gap-4 p-4 pb-2 space-y-0">
-        <Avatar fallback={review.author} className="h-10 w-10 border bg-primary/10 text-primary" />
+    <div className="group rounded-xl border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-md transition-all duration-200">
+      {/* Header */}
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-slate-700 to-slate-900 text-white text-sm font-bold">
+          {initials}
+        </div>
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-sm truncate">{review.author}</h3>
-            <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">{review.date}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="flex">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star 
-                  key={i} 
-                  size={12} 
-                  className={cn(
-                    i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-200"
-                  )} 
-                />
-              ))}
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm text-slate-900 truncate">{review.author}</span>
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset",
+                  sentimentStyle[sentiment] ?? sentimentStyle.Neutro
+                )}
+              >
+                {review.overallSentiment}
+              </span>
             </div>
-            <span className={cn(
-              "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ring-1 ring-inset",
-              review.overallSentiment === 'Positivo' ? "bg-green-50 text-green-700 ring-green-600/20" 
-              : review.overallSentiment === 'Negativo' ? "bg-red-50 text-red-700 ring-red-600/20"
-              : "bg-gray-50 text-gray-600 ring-gray-500/10"
-            )}>
-              {review.overallSentiment}
+            <span className="text-xs text-slate-400 whitespace-nowrap flex items-center gap-1">
+              <MapPin size={10} />
+              {review.date}
             </span>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 pt-2">
-        <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
-          "{review.text}"
-        </p>
-        {/* Aspectos Minerados */}
-        {review.aspects && review.aspects.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2 pt-3 border-t border-border/40">
-            {review.aspects.slice(0, 3).map((aspect: any, idx: number) => (
-              <span key={idx} className="inline-flex items-center rounded-md bg-secondary/80 px-2 py-1 text-xs font-medium text-secondary-foreground ring-1 ring-inset ring-gray-500/10">
-                {aspect.name}: <span className={cn("ml-1 font-bold", 
-                  aspect.sentiment === 'Positivo' ? "text-green-600" :
-                  aspect.sentiment === 'Negativo' ? "text-red-600" : "text-gray-600"
-                )}>{aspect.sentiment}</span>
-              </span>
+
+          {/* Stars */}
+          <div className="flex items-center gap-0.5 mt-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                size={12}
+                className={cn(i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-slate-200 fill-slate-200")}
+              />
             ))}
+            <span className="ml-1.5 text-xs text-slate-400">{review.rating?.toFixed(1)}</span>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+
+      {/* Texto */}
+      <p className="mt-3 text-sm text-slate-600 leading-relaxed line-clamp-3 pl-[52px]">"{review.text}"</p>
+
+      {/* Aspectos */}
+      {review.aspects && review.aspects.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2 pl-[52px]">
+          {review.aspects.map((aspect, idx) => (
+            <span
+              key={idx}
+              className="inline-flex items-center gap-1 rounded-md bg-slate-50 px-2 py-1 text-xs ring-1 ring-inset ring-slate-200"
+            >
+              <span className="text-slate-600 font-medium">{aspect.name}:</span>
+              <span className={cn("font-bold", aspectColor[aspect.sentiment as keyof typeof aspectColor] || "text-slate-500")}>
+                {aspect.sentiment}
+              </span>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

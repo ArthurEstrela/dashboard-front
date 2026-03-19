@@ -1,19 +1,14 @@
 import { api } from "../lib/api";
-import { type Review, type MineReviewsParams } from "../types";
+import { type Review } from "../types";
 
 export const reviewService = {
-  // Busca todas as reviews (GET /api/reviews)
-  async getAll() {
+  async getAll(): Promise<Review[]> {
     const response = await api.get<Review[]>("/api/reviews");
     return response.data;
   },
 
-  // Dispara mineração manual (POST /api/reviews/mine)
-  async mine(params: MineReviewsParams) {
-    // O backend retorna uma String de sucesso, não um JSON complexo
-    const response = await api.post("/api/reviews/mine", null, {
-      params: params // Envia como Query Params (?url=...&establishmentId=...)
-    });
+  async getByEstablishment(establishmentId: number): Promise<Review[]> {
+    const response = await api.get<Review[]>(`/api/reviews/establishment/${establishmentId}`);
     return response.data;
-  }
+  },
 };
