@@ -33,7 +33,7 @@ export function ReviewFeed({ reviews, isLoading, onAddStore }: ReviewFeedProps) 
   const paginated = filtered.slice(0, page * PAGE_SIZE);
   const hasMore = paginated.length < filtered.length;
 
-  const counts = useMemo(
+  const counts = useMemo<Record<Filter, number>>(
     () => ({
       Todos: reviews.length,
       Positivo: reviews.filter((r) => r.overallSentiment === "Positivo").length,

@@ -10,8 +10,8 @@ export function useEstablishment() {
     setIsLoading(true);
     setError(null);
     try {
-      const newEst = await establishmentService.create(data);
-      return newEst;
+      const { establishment } = await establishmentService.create(data);
+      return establishment;
     } catch (err: any) {
       const msg = err.response?.data?.message || "Erro ao criar estabelecimento.";
       setError(msg);

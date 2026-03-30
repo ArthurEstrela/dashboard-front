@@ -1,5 +1,5 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
-import { TrendingUp, TrendingDown, Award, AlertCircle } from "lucide-react";
+import { Award, AlertCircle } from "lucide-react";
 import { type Review, type AspectStat } from "../../types";
 import { useMemo } from "react";
 
@@ -106,7 +106,7 @@ export function InsightsSidebar({ reviews }: Props) {
                 ))}
                 <SentimentLabel viewBox={{ cx: "50%", cy: "50%" }} value={positivePercent} label="positivos" />
               </Pie>
-              <Tooltip formatter={(val: number) => [`${val} avaliações`, ""]} />
+              <Tooltip formatter={(val: number | undefined) => [`${val || 0} avaliações`, ""]} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -131,7 +131,7 @@ export function InsightsSidebar({ reviews }: Props) {
                 <XAxis type="number" domain={[0, 100]} tickFormatter={(v) => `${v}%`} tick={{ fontSize: 10, fill: "#94a3b8" }} />
                 <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11, fill: "#475569" }} />
                 <Tooltip
-                  formatter={(val: number) => [`${val}%`, "Score positivo"]}
+                  formatter={(val: number | undefined) => [`${val || 0}%`, "Score positivo"]}
                   contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }}
                 />
                 <Bar dataKey="score" radius={[0, 4, 4, 0]} maxBarSize={16}>
